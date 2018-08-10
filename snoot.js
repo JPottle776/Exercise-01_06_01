@@ -11,6 +11,7 @@
 var twentyNine = document.createDocumentFragment();
 var thirty = document.createDocumentFragment();
 var thirtyOne = document.createDocumentFragment();
+var formValidity = true;
 
 // function to remove select list defaults 
 function removeSelectDefaults() {
@@ -91,6 +92,46 @@ function copyBillingAddress(){
     }
 }
 
+// function to valitate address - billing & delivery
+function validateAddress(fieldsetId){
+    var inputElements = document.querySelectorAll("#" + fieldsetId + " input");
+    var errorDiv = document.querySelectorAll("#" + fieldsetId + " .errorMessage")[0];
+    var fieldsetValidity = true;
+    var elementCount = inputElements.length;
+    var currentElement;
+    try {
+        alert("I am executing the try clause");
+    } catch (msg) {
+        errorDiv.style.display = "block";
+        errorDiv.innerHTML = msg;
+        formValidity = false;
+    }
+}
+
+// function to validate entire form
+function validateForm(evt){
+    // prevent form default behavior - submit
+    if (evt.preventDefault) {
+        evt.preventDefault();
+    } else {
+        evt.returnValue = false;
+    }
+    formValidity = true;
+
+    validateAddress("billingAddress");
+    validateAddress("deliveryAddress");
+
+    if (formValidity === true) {//form valid
+        document.getElementById("errorText").innerHTML = "";
+        document.getElementById("errorText").style.display = "none";
+        var form = document.getElementsByTagName("form")[0].submit();
+    } else {
+        document.getElementById("errorText").innerHTML = "Please fix the indicated problems and then resubmit your order";
+        document.getElementById("errorText").style.display = "block";
+        scroll(0,0);
+    }
+}
+
 // function that set up page on a load event
 function setUpPage(){
     removeSelectDefaults();
@@ -123,6 +164,12 @@ function createEventListeners(){
         same.addEventListener("change", copyBillingAddress, false);
     } else if (same.attachEvent) {
         same.attachEvent("onchange", copyBillingAddress);
+    }
+    var form = document.getElementsByTagName("form")[0];
+    if (form.addEventListener) {
+        form.addEventListener("submit", validateForm, false);
+    } else if (form.attachEvent) {
+        form.attachEvent("onsubmit", validateForm);
     }
 }
 
